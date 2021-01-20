@@ -1,38 +1,34 @@
-FROM centos:6
+FROM centos:8
 
+ENV BUILD_USER  "kaltura"
+ENV GITHUB_USER  "kaltura"
+ENV PACKAGER_NAME ""
+ENV PACKAGER_MAIL ""
 
-RUN echo "NETWORKING=yes" > /etc/sysconfig/network
+RUN dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
+RUN dnf install epel-release -y
+RUN yum install -y gcc gcc-c++ \
+  libtool libtool-ltdl \
+  make cmake \
+  git \
+  pkgconfig \
+  sudo \
+  automake autoconf \
+  yum-utils rpm-build  \
+  wget which && \
+  yum clean all
 
+RUN useradd $BUILD_USER --home /home/$BUILD_USER --shell /bin/bash && \
+  echo "$BUILD_USER ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+  chown -R $BUILD_USER /home/$BUILD_USER
+RUN mkdir /home/$BUILD_USER/sources /home/$BUILD_USER/rpmbuild
+RUN cd /home/$BUILD_USER/sources && git clone https://$GITHUB_USER@github.com/kaltura/platform-install-packages
+RUN echo "PACKAGER_NAME=\"$PACKAGER_NAME\"\nPACKAGER_MAIL=$PACKAGER_MAIL" > /home/$BUILD_USER/sources/platform-install-packages/build/packager.rc
+RUN cp /root/.bashrc /home/$BUILD_USER
+RUN echo -e "DEBFULLNAME=\"$PACKAGER_NAME\"\nDEBEMAIL=$PACKAGER_MAIL\nexport DEBEMAIL DEBFULLNAME" >> /home/$BUILD_USER/.bashrc
+RUN ln -s /home/$BUILD_USER/sources/platform-install-packages/SOURCES /home/$BUILD_USER/rpmbuild/SOURCES
+RUN ln -s /home/$BUILD_USER/sources/platform-install-packages/SPECS /home/$BUILD_USER/rpmbuild/SPECS
+RUN chown -R $BUILD_USER.$BUILD_USER /home/$BUILD_USER
+USER $BUILD_USER
 
-
-# mysql
-RUN yum install -y mysql mysql-server
-RUN mysql_install_db
-RUN chkconfig mysqld on
-RUN service mysqld start
-
-
-# facilities
-RUN yum install -y postfix ntp
-RUN chkconfig postfix on
-RUN chkconfig ntpd on
-RUN sed -i 's@^inet_protocols = all@inet_protocol = ipv4@g' /etc/postfix/main.cf
-RUN service postfix start
-RUN service ntpd start
-
-# EPEL
-RUN rpm -ihv https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-# kaltura
-RUN rpm -ihv http://installrepo.kaltura.org/releases/kaltura-release.noarch.rpm
-RUN sed -i 's@installrepo.kaltura.org@installrepo.origin.kaltura.org@g' /etc/yum.repos.d/kaltura.repo
-RUN sed -i 's@^tsflags=nodocs@#tsflags=nodocs@g' /etc/yum.conf
-RUN yum install -y kaltura-server
-
-ADD docker/install/* /root/install/
-RUN chmod +x /root/install/install.sh
-
-EXPOSE 80 443 1935 88 8443
-
-
-# start services
-CMD ["/sbin/init"]
+ENV FLAVOR=rpmbuild OS=centos DIST=el8
