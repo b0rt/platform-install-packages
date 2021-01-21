@@ -1,8 +1,7 @@
 FROM centos:8
-
+ENV container docker
 
 RUN echo "NETWORKING=yes" > /etc/sysconfig/network
-
 
 # mysql (skipping as i plan to have mysql as extra service)
 #RUN yum install -y mysql mysql-server
@@ -10,10 +9,9 @@ RUN echo "NETWORKING=yes" > /etc/sysconfig/network
 #RUN chkconfig mysqld on
 #RUN service mysqld start
 
-
 # facilities
 # centos 8 ships with chronyd (replacing ntp)
-RUN yum install -y postfix chrony wget dnf-plugins-core yum-utils
+RUN yum install -y postfix chrony wget dnf-plugins-core yum-utils httpd
 RUN chkconfig postfix on
 RUN chkconfig chronyd on
 RUN sed -i 's@^inet_protocols = all@inet_protocol = ipv4@g' /etc/postfix/main.cf
@@ -56,11 +54,8 @@ RUN yum install -y kaltura-server
 ADD docker/install/* /root/install/
 RUN chmod +x /root/install/install.sh
 
-EXPOSE 80 443 1935 88 8443
-
 
 # based on https://hub.docker.com/_/centos
-ENV container docker
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
 systemd-tmpfiles-setup.service ] || rm -f $i; done); \
 rm -f /lib/systemd/system/multi-user.target.wants/*;\
@@ -73,4 +68,7 @@ rm -f /lib/systemd/system/anaconda.target.wants/*;
 VOLUME [ "/sys/fs/cgroup" ]
 
 # start services
-CMD ["/usr/sbin/init"]
+RUN systemctl enable httpd.service
+
+EXPOSE 80 443 1935 88 8443
+CMD ["/sbin/init"]
