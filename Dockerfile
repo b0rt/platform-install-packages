@@ -11,7 +11,7 @@ RUN echo "NETWORKING=yes" > /etc/sysconfig/network
 
 # facilities
 # centos 8 ships with chronyd (replacing ntp)
-RUN yum install -y postfix chrony wget dnf-plugins-core yum-utils httpd
+RUN yum install -y postfix chrony wget dnf-plugins-core yum-utils httpd systemd
 RUN chkconfig postfix on
 RUN chkconfig chronyd on
 RUN sed -i 's@^inet_protocols = all@inet_protocol = ipv4@g' /etc/postfix/main.cf
