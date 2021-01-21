@@ -1,5 +1,9 @@
 **[Help make Kaltura CE better! Participate in the Kaltura CE Survey](http://surveys.kaltura.org/index.php/877436/lang-en).**
 
+## EXPERIMANTAL FORK!
+builds [b0r7/kaltura-server](https://hub.docker.com/repository/docker/b0r7/kaltura-server)
+
+
 [![License](https://img.shields.io/badge/license-AGPLv3-blue.svg)](http://www.gnu.org/licenses/agpl-3.0.html)
 # Kaltura Installation Packages Project
 To enable the use of standard binary packages and package managers when deploying the Kaltura Video Platform Community Edition.
