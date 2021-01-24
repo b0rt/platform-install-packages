@@ -53,6 +53,7 @@ RUN dnf install http://installrepo.kaltura.org/releases/16.15.0/8/x86_64/kaltura
 # during installation of kaltura-pentaho the output suggest
 # it was expecting a user named 'kaltura', so we are creating one
 RUN useradd -ms /bin/bash kaltura
+RUN useradd -ms /bin/bash elasticsearch
 
 #RUN git clone https://github.com/percona/percona-server.git
 #RUN cd percona-server
@@ -78,7 +79,7 @@ RUN dnf install http://installrepo.kaltura.org/releases/16.15.0/8/x86_64/kaltura
 # update everything to be current
 #RUN yum config-manager --set-enabled powertools
 
-RUN yum install -y kaltura-server --skip-broken
+RUN yum install -y kaltura-server
 
 ADD docker/install/* /root/install/
 RUN chmod +x /root/install/install.sh
