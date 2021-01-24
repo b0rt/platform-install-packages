@@ -37,6 +37,9 @@ RUN dnf install https://rpms.remirepo.net/enterprise/remi-release-7.rpm -y
 RUN yum-config-manager --enable remi-php72
 #RUN yum-config-manager --enable remi-php72
 
+RUN dnf install http://repo.mysql.com/yum/mysql-5.5-community/el/7/x86_64/mysql-community-release-el7-5.noarch.rpm -y
+RUN yum install -y mysql-community-server
+
 #RUN yum update -y
 # kaltura
 RUN dnf install http://installrepo.kaltura.org/releases/kaltura-release.noarch.rpm -y
@@ -75,8 +78,7 @@ RUN dnf install http://installrepo.kaltura.org/releases/16.15.0/8/x86_64/kaltura
 # update everything to be current
 #RUN yum config-manager --set-enabled powertools
 
-RUN yum install -y kaltura-ffmpeg --skip-broken
-#RUN yum install -y kaltura-server
+RUN yum install -y kaltura-server --skip-broken
 
 ADD docker/install/* /root/install/
 RUN chmod +x /root/install/install.sh
